@@ -1,0 +1,30 @@
+###
+POST http://localhost:8080/create-employee
+Content-Type: application/json
+
+{
+    "employee_id": 1,
+    "employee_name":"Indal Kumar",
+    "employee_designation": "Backend Developer",
+    "employee_salery": 100.00
+}
+
+###
+PUT http://localhost:8080/update-employee
+Content-Type: application/json
+
+{
+    "employee_id": 1,
+    "employee_name":"Indal Kumar",
+    "employee_designation": "Golang Developer",
+    "employee_salery": 1s0.00
+}
+
+###
+GET http://localhost:8080/get-all-employees
+Content-Type: application/json
+
+
+###
+DELETE http://localhost:8080/delete-employee/1
+Content-Type: application/json
