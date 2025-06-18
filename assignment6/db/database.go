@@ -1,8 +1,7 @@
-package main
+package db
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -29,11 +28,11 @@ func InitDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func main() {
-	db, err := InitDB()
-	if err != nil {
-		log.Fatal(err)
-	}
+// func main() {
+// 	db, err := InitDB()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
 
-	fmt.Println(db)
-}
+// 	fmt.Println(db)
+// }

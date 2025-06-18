@@ -1,6 +1,7 @@
 package main
 
 import (
+	"assignment6/db"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -35,6 +36,12 @@ func (e *Employee) Delete(employeeID int) {
 }
 
 func main() {
+	db, err := db.InitDB()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("db:===>", db)
 
 	mux := http.NewServeMux()
 
