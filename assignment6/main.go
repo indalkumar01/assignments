@@ -74,11 +74,7 @@ func main() {
 		paths := strings.Split(r.URL.Path, "/")
 		employeeID := paths[len(paths)-1]
 
-		row, err := db.Query("select * from employees where employee_id = $1", employeeID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		row := db.QueryRow("select * from employees where employee_id = $1", employeeID)
 
 		emp := Employee{}
 
@@ -86,8 +82,6 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		defer row.Close()
 
 		json.NewEncoder(w).Encode(emp)
 	})
