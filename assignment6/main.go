@@ -44,20 +44,20 @@ func main() {
 	mux.HandleFunc("PUT /update-employee", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 
-		emp := new(Employee)
+		var emp Employee
 		if err := json.NewDecoder(r.Body).Decode(&emp); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		stmt, err := db.Prepare("update employees set employee_name = ?, employee_designation=?, employee_salery=? where employee_id=?")
-		if err = json.NewDecoder(r.Body).Decode(&emp); err != nil {
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		_, err = stmt.Exec(emp.EmployeeName, emp.EmployeeDesignation, emp.EmployeeSalary, emp.EmployeeID)
-		if err = json.NewDecoder(r.Body).Decode(&emp); err != nil {
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
