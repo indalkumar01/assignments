@@ -21,6 +21,8 @@ func main() {
 		panic(err)
 	}
 
+	defer db.Close()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /create-employee", func(w http.ResponseWriter, r *http.Request) {
@@ -47,6 +49,20 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		stmt, err := db.Prepare("update employees set employee_name = ?, employee_designation=?, employee_salery=? where employee_id=?")
+		if err = json.NewDecoder(r.Body).Decode(&emp); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		_, err = stmt.Exec(emp.EmployeeName, emp.EmployeeDesignation, emp.EmployeeSalary, emp.EmployeeID)
+		if err = json.NewDecoder(r.Body).Decode(&emp); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		defer stmt.Close()
 
 		w.Write([]byte("updated"))
 

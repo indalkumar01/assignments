@@ -25,8 +25,6 @@ func InitDB() (*sql.DB, error) {
 	}
 	statement.Exec()
 
-	defer db.Close()
-
 	return db, nil
 }
 
