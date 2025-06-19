@@ -15,33 +15,11 @@ type Employee struct {
 	EmployeeSalary      float64 `json:"employee_salery"`
 }
 
-func (e *Employee) Create() {
-
-}
-
-func (e *Employee) Update() {
-
-}
-
-func (e *Employee) GetOne(employeeID int) {
-
-}
-
-func (e *Employee) GetAll() {
-
-}
-
-func (e *Employee) Delete(employeeID int) {
-
-}
-
 func main() {
 	db, err := db.InitDB()
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("db:===>", db)
 
 	mux := http.NewServeMux()
 
@@ -52,7 +30,11 @@ func main() {
 			return
 		}
 
-		fmt.Println(emp)
+		_, err := db.Exec("insert into employees(employee_id, employee_name, employee_designation, employee_salery) values(?, ?, ?, ?)", emp.EmployeeID, emp.EmployeeName, emp.EmployeeDesignation, emp.EmployeeSalary)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		w.Write([]byte("successfully created employee"))
 	})
@@ -76,19 +58,55 @@ func main() {
 		paths := strings.Split(r.URL.Path, "/")
 		employeeID := paths[len(paths)-1]
 
-		json.NewEncoder(w).Encode(map[string]interface{}{"msg": "success", "employeeID": employeeID})
+		row, err := db.Query("select * from employees where employee_id = $1", employeeID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		emp := Employee{}
+
+		if err := row.Scan(&emp.EmployeeID, &emp.EmployeeName, &emp.EmployeeDesignation, &emp.EmployeeSalary); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		defer row.Close()
+
+		json.NewEncoder(w).Encode(emp)
 	})
 
 	mux.HandleFunc("GET /get-all-employees", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(w).Encode([]Employee{
-			{EmployeeID: 1, EmployeeName: "test", EmployeeDesignation: "test", EmployeeSalary: 100},
-			{EmployeeID: 1, EmployeeName: "test2", EmployeeDesignation: "test2", EmployeeSalary: 200},
-		})
+
+		employees := []Employee{}
+
+		rows, err := db.Query("select * from employees")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		for rows.Next() {
+			var emp Employee
+			rows.Scan(&emp.EmployeeID, &emp.EmployeeName, &emp.EmployeeDesignation, &emp.EmployeeSalary)
+			employees = append(employees, emp)
+		}
+
+		json.NewEncoder(w).Encode(employees)
 	})
 
 	mux.HandleFunc("DELETE /delete-employee/{employeeID}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
+
+		paths := strings.Split(r.URL.Path, "/")
+		employeeID := paths[len(paths)-1]
+
+		_, err := db.Exec("DELETE from employees where employee_id = ?", employeeID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		w.Write([]byte("deleted!"))
 	})

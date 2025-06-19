@@ -14,9 +14,11 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	statement, err := db.Prepare(`CREATE TABLE employees (
-		id integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
-		employee_name varchar(255)		
+	statement, err := db.Prepare(`CREATE TABLE if not exists employees (
+		employee_id integer,		
+		employee_name varchar(255),
+		employee_designation varchar(255),
+		employee_salery REAL
 	  )`)
 	if err != nil {
 		log.Fatal(err.Error())
